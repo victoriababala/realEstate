@@ -9,13 +9,13 @@ import React from "react";
 const TenantSettingsPage = () => {
   const { data: authUser, isLoading } = useGetAuthUserQuery();
   const [updateTenantSettings] = useUpdateTenantSettingsMutation();
-
+console.log("authUser", authUser);
   if (isLoading) return <>Loading...</>;
 
   const initialData = {
-    name: authUser?.userInfo.name,
-    email: authUser?.userInfo.email,
-    phoneNumber: authUser?.userInfo.phoneNumber,
+    name: authUser?.userInfo?.name,
+    email: authUser?.userInfo?.email,
+    phoneNumber: authUser?.userInfo?.phoneNumber,
   };
 
   const handleSubmit = async (data: typeof initialData) => {
