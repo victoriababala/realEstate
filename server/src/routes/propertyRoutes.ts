@@ -13,6 +13,6 @@ const router = express.Router();
 
 router.get("/", getProperties);
 router.get("/:id", getProperty);
-router.put("/",authMiddleware(["manager"]),upload.array("photos"), createProperty);
+router.post("/",authMiddleware(["manager"]),upload.array("photos"), createProperty);
 
 export default router;

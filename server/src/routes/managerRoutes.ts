@@ -9,8 +9,8 @@ import {
 const router = express.Router();
 
 router.get("/:cognitoId", getManager);
-router.post("/", createManager);
 router.put("/:cognitoId", updateManager);
-router.put("/:cognitoId/properties", getManagerProperties);
+router.get("/:cognitoId/properties", getManagerProperties);
+router.post("/", createManager);
 
 export default router;
