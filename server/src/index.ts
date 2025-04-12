@@ -10,6 +10,7 @@ import tenantRoutes from "./routes/tenantRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
 import leaseRoutes from "./routes/leaseRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
+import managerRoutes from "./routes/managerRoutes";
 
 /*Configurations */
 dotenv.config();
@@ -29,12 +30,12 @@ app.get("/", (req, res) => {
 
 app.use("/properties", propertyRoutes);
 app.use("/tenants", authMiddleware(["tenant"]), tenantRoutes);
-app.use("/managers", authMiddleware(["manager"]), tenantRoutes);
+app.use("/managers", authMiddleware(["manager"]), managerRoutes);
 app.use("/leases", leaseRoutes);
-app.use("applications", applicationRoutes);
+app.use("/applications", applicationRoutes);
 
-/*Server */
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+/* SERVER */
+const port = Number(process.env.PORT) || 3002;
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port}`);
 });
