@@ -101,7 +101,6 @@ export const createApplication = async (
 
     const property = await prisma.property.findUnique({
       where: { id: propertyId },
-      select: { pricePerMonth: true, securityDeposit: true },
     });
 
     if (!property) {
@@ -109,52 +108,26 @@ export const createApplication = async (
       return;
     }
 
-    const newApplication = await prisma.$transaction(async (prisma) => {
-      // Create lease first
-      const lease = await prisma.lease.create({
-        data: {
-          startDate: new Date(), // Today
-          endDate: new Date(
-            new Date().setFullYear(new Date().getFullYear() + 1)
-          ), // 1 year from today
-          rent: property.pricePerMonth,
-          deposit: property.securityDeposit,
-          property: {
-            connect: { id: propertyId },
-          },
-          tenant: {
-            connect: { cognitoId: tenantCognitoId },
-          },
+    const newApplication = await prisma.application.create({
+      data: {
+        applicationDate: new Date(applicationDate),
+        status,
+        name,
+        email,
+        phoneNumber,
+        message,
+        property: {
+          connect: { id: propertyId },
         },
-      });
-
-      // Then create application with lease connection
-      const application = await prisma.application.create({
-        data: {
-          applicationDate: new Date(applicationDate),
-          status,
-          name,
-          email,
-          phoneNumber,
-          message,
-          property: {
-            connect: { id: propertyId },
-          },
-          tenant: {
-            connect: { cognitoId: tenantCognitoId },
-          },
-          lease: {
-            connect: { id: lease.id },
-          },
+        tenant: {
+          connect: { cognitoId: tenantCognitoId },
         },
-        include: {
-          property: true,
-          tenant: true,
-          lease: true,
-        },
-      });
-
-      return application;
+      },
+      include: {
+        property: true,
+        tenant: true,
+        lease: true, // might be null
+      },
     });
 
     res.status(201).json(newApplication);
@@ -164,7 +137,6 @@ export const createApplication = async (
       .json({ message: `Error creating application: ${error.message}` });
   }
 };
-
 export const updateApplicationStatus = async (
   req: Request,
   res: Response
@@ -179,6 +151,7 @@ export const updateApplicationStatus = async (
       include: {
         property: true,
         tenant: true,
+        lease: true, // include existing lease to check
       },
     });
 
@@ -188,6 +161,14 @@ export const updateApplicationStatus = async (
     }
 
     if (status === "Approved") {
+      // 🚫 Check if lease already exists
+      if (application.lease) {
+        res
+          .status(400)
+          .json({ message: "Lease already exists for this application." });
+        return;
+      }
+
       const newLease = await prisma.lease.create({
         data: {
           startDate: new Date(),
@@ -201,7 +182,6 @@ export const updateApplicationStatus = async (
         },
       });
 
-      // Update the property to connect the tenant
       await prisma.property.update({
         where: { id: application.propertyId },
         data: {
@@ -211,7 +191,6 @@ export const updateApplicationStatus = async (
         },
       });
 
-      // Update the application with the new lease ID
       await prisma.application.update({
         where: { id: Number(id) },
         data: { status, leaseId: newLease.id },
@@ -222,14 +201,12 @@ export const updateApplicationStatus = async (
         },
       });
     } else {
-      // Update the application status (for both "Denied" and other statuses)
       await prisma.application.update({
         where: { id: Number(id) },
         data: { status },
       });
     }
 
-    // Respond with the updated application details
     const updatedApplication = await prisma.application.findUnique({
       where: { id: Number(id) },
       include: {

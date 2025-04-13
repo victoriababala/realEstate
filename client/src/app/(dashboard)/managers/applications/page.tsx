@@ -16,6 +16,7 @@ import React, { useState } from "react";
 const Applications = () => {
   const { data: authUser } = useGetAuthUserQuery();
   const [activeTab, setActiveTab] = useState("all");
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const {
     data: applications,
@@ -33,12 +34,16 @@ const Applications = () => {
   const [updateApplicationStatus] = useUpdateApplicationStatusMutation();
 
   const handleStatusChange = async (id: number, status: string) => {
-    await updateApplicationStatus({ id, status });
+    try {
+      setUpdatingId(id);
+      await updateApplicationStatus({ id, status });
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   if (isLoading) return <Loading />;
   if (isError || !applications) return <div>Error fetching applications</div>;
-
 
   const filteredApplications = applications?.filter((application) => {
     if (activeTab === "all") return true;
@@ -138,7 +143,8 @@ const Applications = () => {
                       {application.status === "Pending" && (
                         <>
                           <button
-                            className="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-500"
+                            disabled={updatingId === application.id}
+                            className="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() =>
                               handleStatusChange(application.id, "Approved")
                             }
@@ -146,7 +152,8 @@ const Applications = () => {
                             Approve
                           </button>
                           <button
-                            className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-500"
+                            disabled={updatingId === application.id}
+                            className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() =>
                               handleStatusChange(application.id, "Denied")
                             }
