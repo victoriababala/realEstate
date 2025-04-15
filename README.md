@@ -1,4 +1,4 @@
-# 🌇 Real Estate Rental Platform
+# 🌇 [Real Estate Rental Platform](https://master.d3nadeyy4kwks1.amplifyapp.com/)
 
 ##  Overview
 This is a real estate rental platform that facilitates the process of finding and renting properties. The platform supports two types of users: tenants and managers. Tenants can browse listings, filter properties, save favorites, and submit rental applications. Managers can add listings, process applications, and manage tenants. Authentication is handled using AWS Cognito.
@@ -50,7 +50,6 @@ This is a real estate rental platform that facilitates the process of finding an
 - ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=flat&logo=amazonaws&logoColor=white) AWS EC2
 - ![API Gateway](https://img.shields.io/badge/API%20Gateway-FF4F8B?style=flat&logo=amazonaws&logoColor=white) API Gateway
 - ![RDS](https://img.shields.io/badge/AWS%20RDS-527FFF?style=flat&logo=amazonaws&logoColor=white) RDS (Relational Database Service)
-- ![S3](https://img.shields.io/badge/AWS%20S3-569A31?style=flat&logo=amazons3&logoColor=white) S3 (Storage)
 - ![AWS Amplify](https://img.shields.io/badge/AWS%20Amplify-FF9900?style=flat&logo=awsamplify&logoColor=white) AWS Amplify
 
 ### **Authentication:**
